@@ -1,0 +1,24 @@
+2025-12-22 15:57:44.911690 | Total options priced: 10
+2025-12-22 15:57:44.911884 | Total results: 0
+2025-12-22 15:57:44.911935 | Methods used: black_scholes, jump_diffusion_mc
+
+======================================================================
+Pricing Session Summary
+Trader: Adam Jones
+Instrument: NIKKEI225 & TOPIX Options
+Duration: 0.0054s
+Results: 3
+======================================================================
+
+2025-12-22 16:00:04.550799 | Total options priced: 10
+2025-12-22 16:00:04.551715 | Total results: 0
+2025-12-22 16:00:04.551781 | Methods used: black_scholes, jump_diffusion_mc
+
+======================================================================
+Pricing Session Summary
+Trader: Adam Jones
+Instrument: NIKKEI225 & TOPIX Options
+Duration: 3.4949s
+Results: 3
+======================================================================
+

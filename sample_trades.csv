@@ -1,0 +1,11 @@
+trader_id,trader_name,desk,order_id,underlying,strike,maturity,volatility,quantity,option_type,spot,risk_free_rate,jump_intensity,jump_mean,jump_std
+AJ001,Adam Jones,JapanEQExotics,ORD001,NIKKEI225,28000.0,0.25,0.20,100,call,28000.0,0.05,0.75,0.6,0.2
+AJ001,Adam Jones,JapanEQExotics,ORD002,NIKKEI225,29000.0,0.25,0.22,50,call,28000.0,0.05,0.75,0.6,0.2
+AJ001,Adam Jones,JapanEQExotics,ORD003,NIKKEI225,27000.0,0.25,0.18,75,call,28000.0,0.05,0.75,0.6,0.2
+AJ001,Adam Jones,JapanEQExotics,ORD004,TOPIX,2000.0,0.5,0.19,100,call,2000.0,0.05,0.60,0.5,0.18
+AJ001,Adam Jones,JapanEQExotics,ORD005,TOPIX,2100.0,0.5,0.21,60,call,2000.0,0.05,0.60,0.5,0.18
+AJ001,Adam Jones,JapanEQExotics,ORD006,NIKKEI225,28000.0,1.0,0.20,80,call,28000.0,0.05,0.75,0.6,0.2
+AJ001,Adam Jones,JapanEQExotics,ORD007,NIKKEI225,30000.0,0.25,0.25,40,call,28000.0,0.05,0.75,0.6,0.2
+AJ001,Adam Jones,JapanEQExotics,ORD008,TOPIX,1950.0,0.25,0.17,90,call,2000.0,0.05,0.60,0.5,0.18
+AJ001,Adam Jones,JapanEQExotics,ORD009,NIKKEI225,28500.0,0.5,0.21,55,call,28000.0,0.05,0.75,0.6,0.2
+AJ001,Adam Jones,JapanEQExotics,ORD010,TOPIX,2050.0,1.0,0.20,70,call,2000.0,0.05,0.60,0.5,0.18
