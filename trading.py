@@ -4,7 +4,7 @@ from __future__ import annotations
 import time
 from collections.abc import MutableSequence
 from dataclasses import dataclass, field
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Literal
 
 from decorators import log_call
 
@@ -24,6 +24,7 @@ class Order:
     maturity: float
     notional: int
     timestamp: float = field(default_factory=time.time)
+    side: Literal["BUY", "SELL"] = "BUY"
 
 
 class TradeBlotter(MutableSequence[Order]):

@@ -5,8 +5,8 @@ import abc
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
-from descriptors import NonNegativeFloat
-
+from descriptors import NonNegativeFloat, BoundedFloat
+from exceptions import NegativeValueError
 
 @dataclass
 class MarketData:
@@ -32,9 +32,38 @@ class BaseOption(abc.ABC):
 
     spot = NonNegativeFloat("spot")
     strike = NonNegativeFloat("strike")
-    maturity = NonNegativeFloat("maturity")
+    _maturity = NonNegativeFloat("_maturity")
     rate = NonNegativeFloat("rate")
-    volatility = NonNegativeFloat("volatility")
+    _volatility =  BoundedFloat("_volatility", min_value=0.0, max_value=5.0)
+    dividend = NonNegativeFloat("dividend")
+
+    @property
+    def maturity(self) -> float:
+        return self._maturity
+
+    @maturity.setter
+    def maturity(self, value: float) -> None:
+        if value <= 0:
+            raise NegativeValueError("maturity must be > 0")
+        self._maturity = value
+
+    @maturity.deleter
+    def maturity(self) -> None:
+        raise AttributeError("maturity cannot be deleted")
+
+    @property
+    def volatility(self) -> float:
+        return self._volatility
+
+    @volatility.setter
+    def volatility(self, value: float) -> None:
+        if value <= 0:
+            raise NegativeValueError("volatility must be > 0")
+        self._volatility = value
+
+    @volatility.deleter
+    def volatility(self) -> None:
+        raise AttributeError("volatility cannot be deleted")
 
     def __init__(self, market: MarketData, spec: OptionSpecification, volatility: float) -> None:
         self.spot = market.spot
@@ -44,10 +73,10 @@ class BaseOption(abc.ABC):
         self.maturity = spec.maturity
         self.volatility = volatility
 
-    def __repr__(self) -> str:  # pragma: no cover - trivial
+    def __repr__(self) -> str:  
         return (
             f"{self.__class__.__name__}(spot={self.spot}, strike={self.strike}, maturity={self.maturity}, "
-            f"rate={self.rate}, vol={self.volatility})"
+            f"rate={self.rate}, volatility={self.volatility})"
         )
 
     def __len__(self) -> int:

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import random
+import numpy as np
 from dataclasses import dataclass
 from typing import Generator, Iterable, Iterator
 
@@ -50,15 +51,19 @@ class MertonJumpModel:
         price = self.spot
         for _ in range(self.steps):
             z = random.gauss(0, 1)
-            jump_count = 1 if random.random() < self.jump_params.intensity * self.delta_t else 0
-            jump_amplitude = (
-                math.exp(self.jump_params.mean_jump + self.jump_params.jump_vol * random.gauss(0, 1)) - 1
-                if jump_count
-                else 0.0
-            )
+            jump_count = np.random.poisson(self.jump_params.intensity * self.delta_t)
+
+            jump_term = 0.0
+            if jump_count > 0:
+                jump_term = np.random.normal(
+                    loc=self.jump_params.mean_jump,
+                    scale=self.jump_params.jump_vol,
+                    size=jump_count
+                ).sum()
+
             drift = (self.rate - self.drift_correction - 0.5 * self.volatility**2) * self.delta_t
             diffusion = self.volatility * math.sqrt(self.delta_t) * z
-            price *= math.exp(drift + diffusion) * (1 + jump_amplitude * jump_count)
+            price *= math.exp(drift + diffusion + jump_term)
         return price
 
     def terminal_price_stream(self, paths: int) -> Iterator[float]:
@@ -80,7 +85,7 @@ class MertonJumpModel:
     def plot_paths(self, paths: int) -> None:
         try:
             import matplotlib.pyplot as plt
-        except ImportError as exc:  # pragma: no cover - optional dependency
+        except ImportError as exc:  
             raise PricingError("matplotlib is required for plotting") from exc
         all_paths: list[list[float]] = []
         for _ in range(paths):

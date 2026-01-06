@@ -22,6 +22,13 @@ class StrategyRegistry:
     _strategies: Dict[str, PricingStrategy] = {}
     _default_key = "black_scholes"
 
+    jump_mc_settings = {
+        "paths": 200,
+        "intensity": 0.75,
+        "mean_jump": -0.6,
+        "jump_vol": 0.25,
+    }
+
     @classmethod
     def register(cls, name: str, strategy: PricingStrategy) -> None:
         cls._strategies[name] = strategy
@@ -33,6 +40,24 @@ class StrategyRegistry:
     @classmethod
     def default_strategy(cls) -> PricingStrategy:
         return cls._strategies[cls._default_key]
+
+    @classmethod
+    def configure_jump_mc(
+        cls,
+        *,
+        paths: int | None = None,
+        intensity: float | None = None,
+        mean_jump: float | None = None,
+        jump_vol: float | None = None,
+    ) -> None:
+        if paths is not None:
+            cls.jump_mc_settings["paths"] = paths
+        if intensity is not None:
+            cls.jump_mc_settings["intensity"] = intensity
+        if mean_jump is not None:
+            cls.jump_mc_settings["mean_jump"] = mean_jump
+        if jump_vol is not None:
+            cls.jump_mc_settings["jump_vol"] = jump_vol
 
 
 def _normal_cdf(x: float) -> float:
@@ -79,10 +104,29 @@ def jump_diffusion_mc_strategy(option: BaseOption) -> StrategyResult:
         maturity=option.maturity,
         steps=steps,
     )
-    paths = 200  # keep light for demo
+    paths = 200 
     discounted_payoff = model.price_paths(paths=paths, strike=option.strike)
     return StrategyResult(price=discounted_payoff, greeks={"delta": 0.0, "gamma": 0.0, "vega": 0.0, "theta": 0.0, "rho": 0.0})
 
+def cox_ross_rubinstein(option: BaseOption) -> StrategyResult:
+    # for the quant team
+    return StrategyResult(price=0.0, greeks={"delta": 0.0, "gamma": 0.0, "vega": 0.0, "theta": 0.0, "rho": 0.0})
+
+def jarrow_rudd_model(option: BaseOption) -> StrategyResult:
+    # for the quant team
+    return StrategyResult(price=0.0, greeks={"delta": 0.0, "gamma": 0.0, "vega": 0.0, "theta": 0.0, "rho": 0.0})
+
+def stand_trinomial_tree(option: BaseOption) -> StrategyResult:
+    # for the quant team
+    return StrategyResult(price=0.0, greeks={"delta": 0.0, "gamma": 0.0, "vega": 0.0, "theta": 0.0, "rho": 0.0})
+
+def adaptative_trinomial_tree(option: BaseOption) -> StrategyResult:
+    # for the quant team
+    return StrategyResult(price=0.0, greeks={"delta": 0.0, "gamma": 0.0, "vega": 0.0, "theta": 0.0, "rho": 0.0})
 
 StrategyRegistry.register("black_scholes", black_scholes_strategy)
 StrategyRegistry.register("jump_mc", jump_diffusion_mc_strategy)
+StrategyRegistry.register("cox ross Rubinstein", cox_ross_rubinstein)
+StrategyRegistry.register("jarrow Rudd", jarrow_rudd_model)
+StrategyRegistry.register("trinomial tree", stand_trinomial_tree)
+StrategyRegistry.register("adaptative trinomial tree", adaptative_trinomial_tree)
