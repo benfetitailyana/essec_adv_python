@@ -93,28 +93,28 @@ class BaseOption(abc.ABC):
     def greeks(self) -> dict[str, float]:
         """Return greeks for the option."""
 
-
+class _HasGreeks(Protocol):
+    def greeks(self) -> dict[str, float]: ...
+    
 class GreeksMixin:
-    """Mixin to expose greeks as properties."""
-
     @property
-    def delta(self) -> float:
+    def delta(self: _HasGreeks) -> float:
         return self.greeks().get("delta", 0.0)
 
     @property
-    def gamma(self) -> float:
+    def gamma(self: _HasGreeks) -> float:
         return self.greeks().get("gamma", 0.0)
 
     @property
-    def vega(self) -> float:
+    def vega(self: _HasGreeks) -> float:
         return self.greeks().get("vega", 0.0)
 
     @property
-    def theta(self) -> float:
+    def theta(self: _HasGreeks) -> float:
         return self.greeks().get("theta", 0.0)
 
     @property
-    def rho(self) -> float:
+    def rho(self: _HasGreeks) -> float:
         return self.greeks().get("rho", 0.0)
 
 

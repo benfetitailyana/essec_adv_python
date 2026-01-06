@@ -6,7 +6,7 @@ import logging
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Literal
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class PricingSession:
         logger.info("Starting session %s", self.session_name)
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> bool:
+    def __exit__(self, exc_type, exc, tb) -> Literal[False]:
         if exc:
             logger.exception("Session %s raised %s", self.session_name, exc)
         else:

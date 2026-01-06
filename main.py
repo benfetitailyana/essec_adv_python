@@ -44,7 +44,8 @@ def parse_args() -> argparse.Namespace:
 def evaluate_order(strategy_key: str, config: dict) -> PricingResult:
 	option = OptionFactory.create(config)
 	strategy = StrategyRegistry.get(strategy_key)
-	return strategy(option)
+	outcome = strategy(option)
+	return PricingResult(price=outcome.price, greeks=outcome.greeks)
 
 
 def price_orders(trades_path: Path, output_path: Path, strategies: Iterable[str], base_config: dict) -> None:

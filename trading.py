@@ -4,7 +4,7 @@ from __future__ import annotations
 import time
 from collections.abc import MutableSequence
 from dataclasses import dataclass, field
-from typing import Iterable, Iterator, Literal
+from typing import Iterable, Iterator, Literal, Union, overload
 
 from decorators import log_call
 
@@ -22,7 +22,7 @@ class Order:
     underlier: str
     strike: float
     maturity: float
-    notional: int
+    notional: float
     timestamp: float = field(default_factory=time.time)
     side: Literal["BUY", "SELL"] = "BUY"
 
@@ -40,13 +40,21 @@ class TradeBlotter(MutableSequence[Order]):
     def __delitem__(self, index):
         del self._orders[index]
 
-    def __setitem__(self, index, value: Order):
-        self._orders[index] = value
+    @overload
+    def __setitem__(self, index: int, value: Order) -> None: ...
+    @overload
+    def __setitem__(self, index: slice, value: Iterable[Order]) -> None: ...
+
+    def __setitem__(self, index: Union[int, slice], value) -> None:
+        if isinstance(index, slice):
+            self._orders[index] = list(value)
+        else:
+            self._orders[index] = value
 
     def insert(self, index: int, value: Order) -> None:
         self._orders.insert(index, value)
 
-    def sum_notional(self) -> int:
+    def sum_notional(self) -> float:
         return sum(order.notional for order in self._orders)
 
     def filter_by_strike(self, strike: float) -> list[Order]:

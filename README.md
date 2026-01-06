@@ -1,54 +1,118 @@
 # Jump Option Pricing Demo
 
-Lightweight Python project modelling a Merton jump diffusion call pricer with clear OOP patterns, strategies, logging, and data IO for a junior quant assignment. Designed to stay readable for beginners while showcasing SOLID, DRY, ABC/Protocol, descriptors, mixins, decorators, factory/strategy patterns, context managers, and generators.
+This project implements an equity call option pricer under a Merton jump-diffusion framework.
+It was developed as part of a Python assignment and focuses on clean code structure,
+readability, and extensibility rather than production-level performance.
 
-## Quickstart
+The goal of the project is to demonstrate how common quantitative finance concepts
+can be implemented using modern Python design patterns.
 
-- Requirements: Python 3.11+, `matplotlib` only if you want path plots.
-- Run demo pricing (reads 10 sample trades and writes priced CSV):
-  - `python main.py --trades sample_data/trades.csv --output output/priced_trades.csv --strategies black_scholes jump_mc`
-  - Adjust `--spot`, `--rate`, `--vol`, `--dividend` as needed.
-- Plot a few jump paths (optional): - `python - <<'PY'
-from merton import JumpParameters, MertonJumpModel
-model = MertonJumpModel(spot=100, rate=0.05, volatility=0.2, jump_params=JumpParameters(intensity=0.75, mean_jump=-0.6, jump_vol=0.25), maturity=1.0, steps=20)
-model.plot_paths(paths=5)
-PY`
-- Run tests: `pytest`.
-- Suggested static check: `mypy --strict .` (sample project is fully type hinted).
+---
 
-## Files to Explore
+## Overview
 
-- Core interfaces and mixins: [interfaces.py](interfaces.py)
-- Strategies (GoF Strategy) and registry: [strategies.py](strategies.py)
-- Concrete option + pricing entrypoints: [options.py](options.py), [factory.py](factory.py)
-- Jump diffusion model and generator: [merton.py](merton.py)
-- Decorators, context managers, logging setup: [decorators.py](decorators.py), [context_managers.py](context_managers.py), [logging_config.py](logging_config.py)
-- Trader workflow and container (GoF Factory + custom MutableSequence): [trading.py](trading.py), [data_io.py](data_io.py)
-- Demo runner: [main.py](main.py)
-- Tests: [tests](tests)
-- Sample data: [sample_data/trades.csv](sample_data/trades.csv)
-- Reflection memo: [memo.md](memo.md)
+The project prices equity call options using:
+- a closed-form Black–Scholes model
+- a Monte Carlo jump-diffusion model based on Merton’s framework
 
-## Design Highlights
+Pricing logic is separated from financial instruments and selected at runtime.
+Trades are read from a CSV file, priced, logged, and written back to an output CSV.
 
-- **Strategy pattern:** select `black_scholes` or `jump_mc` at runtime via `--strategies` flag using `StrategyRegistry`.
-- **Factory pattern:** `OptionFactory` builds instruments from config or `atm_equity` helper; easy to extend registry.
-- **ABC + Protocol:** `BaseOption` (ABC) plus `PricingProtocol` for structural typing; `GreeksMixin` exposes Greeks.
-- **Descriptors + properties:** `NonNegativeFloat`/`PositiveInt` enforce sane inputs on option/model fields; greeks exposed as properties.
-- **Composition vs inheritance:** `EquityJumpCall` inherits shared option behavior; `MertonJumpModel` is composed inside strategies to keep pricing model pluggable.
-- **Observability:** `log_call` + `time_it` decorators, `PricingSession` context manager, logging to `logs/app.log` and stdout.
-- **Generators:** `MertonJumpModel.payoff_stream` lazily yields terminal payoffs to keep memory low.
-- **Data IO:** Read trades from CSV, price them, and write enriched CSV; easily switch to JSON/SQLite.
-- **Testing:** pytest covers validation, pricing call behavior, generator exhaustion, blotter utilities, logging side effects.
+---
 
-## Using and Extending
 
-- Add more pricing strategies by registering callables on `StrategyRegistry.register("name", func)`.
-- Add new instruments by placing classes in the factory registry.
-- Validators are centralized through descriptors; tweak once, benefit across models.
-- Switch data sources by replacing `read_trades_from_csv` with another loader keeping the `Order` shape.
+### Requirements
+- Python 3.11+
+- numpy
+- pytest (for running tests)
+- mypy (optional, for static type checking)
+- matplotlib (optional, for plotting jump paths)
 
-## MyPy
+####  Pricing example
 
-- Suggested command: `mypy --strict .`
-- If mypy is installed, the codebase should pass; adjust paths or config as needed.
+python main.py \
+  --trades sample_data/trades.csv \
+  --output output/priced_trades.csv \
+  --strategies black_scholes jump_mc
+
+Market parameters can be modified from the command line:
+python main.py --spot 100 --rate 0.05 --vol 0.2 --dividend 0.0
+
+
+Monte Carlo and jump parameters can also be adjusted at runtime:
+
+python main.py \
+  --strategies jump_mc \
+  --paths 5000 \
+  --jump_lambda 1.2 \
+  --jump_mu -0.6 \
+  --jump_vol 0.3
+
+#####  Project structure
+[interfaces.py](interfaces.py)
+Base option abstractions, pricing results, and shared mixins.
+
+[strategies.py](strategies.py)
+Pricing strategies (Black–Scholes and jump-diffusion Monte Carlo) and a registry
+used to select strategies at runtime.
+
+[options.py](options.py)
+Concrete option implementation (EquityJumpCall).
+
+[factory.py](factory.py)
+Factory used to build option instances from configuration dictionaries.
+
+[merton.py](merton.py)
+Jump-diffusion model with Poisson jumps and Euler discretization.
+Exposes generators for terminal prices and payoffs.
+
+[trading.py](trading.py)
+Domain objects (Trader, Order) and a custom TradeBlotter container.
+
+[data_io.py](data_io.py)
+CSV trade loader.
+
+[decorators.py](decorators.py) , [context_managers.py](context_managers.py), [logging_config.py](logging_config.py)
+Logging, decorators, and context managers used for observability.
+
+[main.py](main.py)
+Application entry point.
+
+[tests](tests/)
+Pytest test suite.
+
+###### Design choices
+Financial instruments inherit from a common abstract base class to reuse
+validated state and shared behavior.
+
+Pricing logic is implemented using the Strategy pattern and kept outside
+instrument classes. Instruments delegate pricing to strategies selected at runtime.
+The jump-diffusion strategy composes a separate jump model rather than embedding
+numerical logic directly inside the option.
+
+Input validation is centralized using descriptors and properties.
+Domain-specific exceptions are used to report invalid configurations clearly.
+
+Monte Carlo simulations use generators to avoid unnecessary memory usage.
+
+####### Testing 
+The project includes a pytest test suite covering:
+
+input validation (descriptors and properties)
+
+pricing call behavior
+
+generator exhaustion
+
+logging side effects
+
+custom container utilities
+
+factory helper methods
+
+python -m pytest -q
+
+####### Typing
+The codebase is fully type-annotated and checked using MyPy.
+A MyPy report is included to document static type-checking results (mypy_report.txt)
+python -m mypy . > mypy_report.txt
